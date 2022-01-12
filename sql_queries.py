@@ -20,10 +20,10 @@ DROP TABLE IF EXISTS time;
 
 songplay_table_create = ("""
 CREATE TABLE IF NOT EXISTS songplays (
-    songplay_id SERIAL  PRIMARY KEY, 
-    start_time  bigint, 
-    user_id     int, 
-    level       varchar, 
+    songplay_id SERIAL      PRIMARY KEY, 
+    start_time  bigint      NOT NULL, 
+    user_id     int         NOT NULL, 
+    level       varchar     NOT NULL, 
     song_id     varchar, 
     artist_id   varchar, 
     session_id  int, 
@@ -42,26 +42,26 @@ CREATE TABLE IF NOT EXISTS songplays (
 
 user_table_create = ("""
 CREATE TABLE IF NOT EXISTS users (
-    user_id     INT     PRIMARY KEY, 
-    first_name  varchar, 
-    last_name   varchar, 
+    user_id     INT         PRIMARY KEY, 
+    first_name  varchar     NOT NULL, 
+    last_name   varchar     NOT NULL, 
     gender      char, 
-    level       varchar)
+    level       varchar     NOT NULL)
 """)
 
 song_table_create = ("""
 CREATE TABLE IF NOT EXISTS songs (
     song_id     varchar     PRIMARY KEY, 
-    title       varchar, 
-    artist_id   varchar, 
+    title       varchar     NOT NULL, 
+    artist_id   varchar     NOT NULL, 
     year        int, 
-    duration    numeric)
+    duration    numeric     NOT NULL)
 """)
 
 artist_table_create = ("""
 CREATE TABLE IF NOT EXISTS artists (
     artist_id   varchar     PRIMARY KEY, 
-    name        varchar, 
+    name        varchar     NOT NULL, 
     location    varchar, 
     latitude    numeric, 
     longitude   numeric)
@@ -70,12 +70,12 @@ CREATE TABLE IF NOT EXISTS artists (
 time_table_create = ("""
 CREATE TABLE IF NOT EXISTS time (
     start_time  bigint, 
-    hour        int, 
-    day         int, 
-    week        int, 
-    month       varchar, 
-    year        int, 
-    weekday     int)
+    hour        int         NOT NULL, 
+    day         int         NOT NULL, 
+    week        int         NOT NULL, 
+    month       varchar     NOT NULL, 
+    year        int         NOT NULL, 
+    weekday     int         NOT NULL)
 """)
 
 # INSERT RECORDS
