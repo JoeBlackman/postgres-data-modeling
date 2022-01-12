@@ -3,6 +3,7 @@ This module is an ETL pipeline for extracting song metadata and user activity lo
 This will be accomplished by crawling over each file in certain directories containing metadata and log files, reading their contents into pandas dataframes, and performing SQL insertions with their contents.
 """
 
+import datetime
 import os
 import glob
 import psycopg2
@@ -49,9 +50,10 @@ def process_log_file(cur, filepath):
 
     # convert timestamp column to datetime
     t = pd.to_datetime(log_data_df['ts'], unit='ms')
+    log_data_df['ts'] = pd.to_datetime(log_data_df['ts'], unit='ms')
 
     # insert time data records
-    time_data = (t.astype(np.int64), t.dt.hour, t.dt.day,
+    time_data = (t, t.dt.hour, t.dt.day,
                  t.dt.week, t.dt.month, t.dt.year, t.dt.weekday)
     column_labels = ('timestamp', 'hour', 'day',
                      'week', 'month', 'year', 'weekday')
@@ -69,14 +71,15 @@ def process_log_file(cur, filepath):
 
     # insert user records
     for i, row in user_df.iterrows():
-        cur.execute(user_table_insert, row)
+        cur.execute(build_user_table_insert(
+            row.userId, row.firstName, row.lastName, row.gender, row.level))
 
     # insert songplay records
     for index, row in log_data_df.iterrows():
 
         # get songid and artistid from song and artist tables
-        #string substitution not working well with the following line
-        #created build_song_select_query method in sql_queries to better handle query string formatting
+        # string substitution not working well with the following line
+        # created build_song_select_query method in sql_queries to better handle query string formatting
         #cur.execute(song_select, (row.song, row.artist, row.length))
         cur.execute(build_song_select_query(row.song, row.artist, row.length))
         results = cur.fetchone()
@@ -86,7 +89,7 @@ def process_log_file(cur, filepath):
         else:
             songid, artistid = None, None
         # FIXED: created build_song_select_query method in sql_queries.py
-        # this was more annoying to test than it should have been. 
+        # this was more annoying to test than it should have been.
         # very sneaky that i had to use a $token$ in the query because a song name ended with a '$' character
 
         # insert songplay record
