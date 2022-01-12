@@ -85,11 +85,13 @@ INSERT INTO songplays (start_time, user_id, level, song_id, artist_id, session_i
 VALUES (TIMESTAMP %s, %s, %s, %s, %s, %s, %s, %s);
 """)
 
-user_table_insert = ("""
-INSERT INTO users (user_id, first_name, last_name, gender, level) 
-VALUES (%s, %s, %s, %s, %s) 
-ON CONFLICT DO NOTHING;
-""")
+# NOTE: Need more control over string creation, method for creating this query at bottom of file
+# user_table_insert = ("""
+# INSERT INTO users (user_id, first_name, last_name, gender, level)
+# VALUES (%s, %s, %s, %s, %s)
+# ON CONFLICT
+# UPDATE SET (level);
+# """)
 
 song_table_insert = ("""
 INSERT INTO songs (song_id, title, artist_id, year, duration) 
@@ -105,17 +107,19 @@ ON CONFLICT DO NOTHING;
 
 time_table_insert = ("""
 INSERT INTO time (start_time, hour, day, week, month, year, weekday) 
-VALUES (TIMESTAMP %s, %s, %s, %s, %s, %s, %s);
+VALUES (TIMESTAMP %s, %s, %s, %s, %s, %s, %s)
+ON CONFLICT DO NOTHING;
 """)
 
 # FIND SONGS
 
-song_select = ("""
-SELECT song_id, songs.artist_id
-FROM songs 
-JOIN artist ON songs.artist_id=artists.artist_id
-WHERE (title=$title$%s$title$ AND name=$name$%s$name$ AND duration=%s);
-""")
+# NOTE: Need more control over string creation, method for creating this query at bottom of file
+# song_select = ("""
+# SELECT song_id, songs.artist_id
+# FROM songs
+# JOIN artist ON songs.artist_id=artists.artist_id
+# WHERE (title=$title$%s$title$ AND name=$name$%s$name$ AND duration=%s);
+# """)
 
 
 def build_song_select_query(title, name, duration):
@@ -126,6 +130,14 @@ def build_song_select_query(title, name, duration):
     WHERE (title=$title${title}$title$ AND name=$name${name}$name$ AND duration={duration});
     """
 
+
+def build_user_table_insert(user_id, first_name, last_name, gender, level):
+    return f"""
+    INSERT INTO users (user_id, first_name, last_name, gender, level) 
+    VALUES ({user_id}, $${first_name}$$, $${last_name}$$, $${gender}$$, $${level}$$) 
+    ON CONFLICT (user_id)
+    DO UPDATE SET level=$${level}$$;
+    """
 # QUERY LISTS
 
 

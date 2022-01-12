@@ -71,7 +71,8 @@ def process_log_file(cur, filepath):
 
     # insert user records
     for i, row in user_df.iterrows():
-        cur.execute(user_table_insert, row)
+        cur.execute(build_user_table_insert(
+            row.userId, row.firstName, row.lastName, row.gender, row.level))
 
     # insert songplay records
     for index, row in log_data_df.iterrows():
