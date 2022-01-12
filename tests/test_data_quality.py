@@ -7,6 +7,7 @@ assertions will be made against data i've pulled from the metadata and log files
 import psycopg2
 import pytest
 from decimal import *
+from datetime import datetime
 
 
 @pytest.fixture
@@ -26,10 +27,10 @@ def test_song_play_data_quality(connection_handler):
     expected_count = 6820
     assert actual_count == expected_count
     # verify properties of a song_play entity (including song_id and artist_id found when available)
-    q_props = "SELECT * FROM songplays WHERE user_id=15 AND start_time=1542837407796;"
+    q_props = "SELECT * FROM songplays WHERE songplay_id=4627;"
     connection_handler.execute(q_props)
     actual_props = list(connection_handler.fetchone())
-    expected_props = [4627, 1542837407796, 15, "paid", "SOZCTXZ12AB0182364", "AR5KOSW1187FB35FF4", 818, "Chicago-Naperville-Elgin, IL-IN-WI",
+    expected_props = [4627, datetime(2018, 11, 21, 21, 56, 47, 796000), 15, "paid", "SOZCTXZ12AB0182364", "AR5KOSW1187FB35FF4", 818, "Chicago-Naperville-Elgin, IL-IN-WI",
                       '\"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/36.0.1985.125 Chrome/36.0.1985.125 Safari/537.36\"']
     assert actual_props == expected_props
 
@@ -90,11 +91,13 @@ def test_time_data_quality(connection_handler):
     q_count = "SELECT COUNT(1) FROM time;"
     connection_handler.execute(q_count)
     actual_count = connection_handler.fetchone()[0]
-    expected_count = 6820
+    # seven timestamps are not unique, hence seven fewer timestamps than songplays
+    expected_count = 6813
     assert actual_count == expected_count
     # verify properties of a time entity
-    q_props = "SELECT * FROM time WHERE start_time=1541903636796000000;"
+    q_props = "SELECT * FROM time WHERE start_time=$$2018-11-11 02:33:56.796$$;"
     connection_handler.execute(q_props)
     actual_props = list(connection_handler.fetchone())
-    expected_props = [1541903636796000000, 2, 11, 45, "11", 2018, 6]
+    expected_props = [
+        datetime(2018, 11, 11, 2, 33, 56, 796000), 2, 11, 45, 11, 2018, 6]
     assert actual_props == expected_props
