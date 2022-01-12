@@ -1,16 +1,16 @@
 # DROP TABLES
 
 songplay_table_drop = """
-DROP TABLE IF EXISTS song_play;
+DROP TABLE IF EXISTS songplays;
 """
 user_table_drop = """
-DROP TABLE IF EXISTS app_user;
+DROP TABLE IF EXISTS users;
 """
 song_table_drop = """
-DROP TABLE IF EXISTS song;
+DROP TABLE IF EXISTS songs;
 """
 artist_table_drop = """
-DROP TABLE IF EXISTS artist;
+DROP TABLE IF EXISTS artists;
 """
 time_table_drop = """
 DROP TABLE IF EXISTS time;
@@ -19,7 +19,7 @@ DROP TABLE IF EXISTS time;
 # CREATE TABLES
 
 songplay_table_create = ("""
-CREATE TABLE IF NOT EXISTS song_play (
+CREATE TABLE IF NOT EXISTS songplays (
     songplay_id SERIAL  PRIMARY KEY, 
     start_time  bigint, 
     user_id     int, 
@@ -31,17 +31,17 @@ CREATE TABLE IF NOT EXISTS song_play (
     user_agent  varchar,
     CONSTRAINT fk_user 
         FOREIGN KEY(user_id) 
-            REFERENCES app_user(user_id),
+            REFERENCES users(user_id),
     CONSTRAINT fk_song 
         FOREIGN KEY(song_id) 
-            REFERENCES song(song_id),
+            REFERENCES songs(song_id),
     CONSTRAINT fk_artist 
         FOREIGN KEY(artist_id) 
-            REFERENCES artist(artist_id));
+            REFERENCES artists(artist_id));
 """)
 
 user_table_create = ("""
-CREATE TABLE IF NOT EXISTS app_user (
+CREATE TABLE IF NOT EXISTS users (
     user_id     INT     PRIMARY KEY, 
     first_name  varchar, 
     last_name   varchar, 
@@ -50,7 +50,7 @@ CREATE TABLE IF NOT EXISTS app_user (
 """)
 
 song_table_create = ("""
-CREATE TABLE IF NOT EXISTS song (
+CREATE TABLE IF NOT EXISTS songs (
     song_id     varchar     PRIMARY KEY, 
     title       varchar, 
     artist_id   varchar, 
@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS song (
 """)
 
 artist_table_create = ("""
-CREATE TABLE IF NOT EXISTS artist (
+CREATE TABLE IF NOT EXISTS artists (
     artist_id   varchar     PRIMARY KEY, 
     name        varchar, 
     location    varchar, 
@@ -81,24 +81,24 @@ CREATE TABLE IF NOT EXISTS time (
 # INSERT RECORDS
 
 songplay_table_insert = ("""
-INSERT INTO song_play (start_time, user_id, level, song_id, artist_id, session_id, location, user_agent) 
+INSERT INTO songplays (start_time, user_id, level, song_id, artist_id, session_id, location, user_agent) 
 VALUES (%s, %s, %s, %s, %s, %s, %s, %s);
 """)
 
 user_table_insert = ("""
-INSERT INTO app_user (user_id, first_name, last_name, gender, level) 
+INSERT INTO users (user_id, first_name, last_name, gender, level) 
 VALUES (%s, %s, %s, %s, %s) 
 ON CONFLICT DO NOTHING;
 """)
 
 song_table_insert = ("""
-INSERT INTO song (song_id, title, artist_id, year, duration) 
+INSERT INTO songs (song_id, title, artist_id, year, duration) 
 VALUES (%s, %s, %s, %s, %s) 
 ON CONFLICT DO NOTHING;
 """)
 
 artist_table_insert = ("""
-INSERT INTO artist (artist_id, name, location, latitude, longitude) 
+INSERT INTO artists (artist_id, name, location, latitude, longitude) 
 VALUES (%s, %s, %s, %s, %s) 
 ON CONFLICT DO NOTHING;
 """)
@@ -111,18 +111,18 @@ VALUES (%s, %s, %s, %s, %s, %s, %s);
 # FIND SONGS
 
 song_select = ("""
-SELECT song_id, song.artist_id
-FROM song 
-JOIN artist ON song.artist_id=artist.artist_id
+SELECT song_id, songs.artist_id
+FROM songs 
+JOIN artist ON songs.artist_id=artists.artist_id
 WHERE (title=$title$%s$title$ AND name=$name$%s$name$ AND duration=%s);
 """)
 
 
 def build_song_select_query(title, name, duration):
     return f"""
-    SELECT song_id, song.artist_id
-    FROM song 
-    JOIN artist ON song.artist_id=artist.artist_id
+    SELECT song_id, songs.artist_id
+    FROM songs 
+    JOIN artists ON songs.artist_id=artists.artist_id
     WHERE (title=$title${title}$title$ AND name=$name${name}$name$ AND duration={duration});
     """
 
